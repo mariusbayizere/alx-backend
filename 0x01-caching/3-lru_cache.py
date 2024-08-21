@@ -1,82 +1,40 @@
 #!/usr/bin/env python3
-"""
-LRUCache module that implements a Least Recently Used (LRU) caching system.
-"""
+""" LRU Cache Module """
 
 from base_caching import BaseCaching
 
 
 class LRUCache(BaseCaching):
-    """
-    LRUCache class that implements a Least Recently Used (LRU) caching system.
-
-    Inherits from BaseCaching and follows the LRU eviction strategy.
-    """
+    """ LRUCache class that inherits from BaseCaching LRU cache system """
 
     def __init__(self):
-        """
-        Initialize the LRUCache class.
-
-        Calls the parent class initializer and sets up an order tracking list
-        to keep track of the LRU item.
-        """
+        """ Initialize the class """
         super().__init__()
-        self.lru_order = []
+        self.order = []  # To keep track of the order of insertion and access
 
     def put(self, key, item):
-        """
-        Add an item to the cache using the LRU caching strategy.
-
-        If key or item is None, this method does nothing.
-        If the cache exceeds MAX_ITEMS, discard the least recently used item.
-
-        Args:
-            key (str): The key to add to the cache.
-            item (str): The value to associate with the key.
-        """
+        """ Add an item to the cache """
         if key is None or item is None:
             return
 
         if key in self.cache_data:
-            # Remove the key from lru_order to update its position later
-            self.lru_order.remove(key)
+            self.order.remove(key)
+        elif len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+            # Discard the least recently used item
+            lru_key = self.order.pop(0)
+            del self.cache_data[lru_key]
+            print(f"DISCARD: {lru_key}")
 
-        # Add or update the cache and the LRU tracking order
+        # Add the item and update the order
         self.cache_data[key] = item
-        self.lru_order.append(key)
-
-        # Check if we need to evict an item
-        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            # Remove the least recently used item
-            least_recent_key = self.lru_order.pop(0)
-            del self.cache_data[least_recent_key]
-            print("DISCARD: {}".format(least_recent_key))
+        self.order.append(key)
 
     def get(self, key):
-        """
-        Get an item by key from the cache.
-
-        If key is None or does not exist in cache_data, return None.
-
-        Args:
-            key (str): The key to retrieve from the cache.
-
-        Returns:
-            str: The value linked to the key, or None if key is invalid.
-        """
+        """ Get an item from the cache """
         if key is None or key not in self.cache_data:
             return None
 
-        # Update LRU order since key has been accessed
-        self.lru_order.remove(key)
-        self.lru_order.append(key)
-
+        # Move the accessed key to the end to mark it as recently used
+        self.order.remove(key)
+        self.order.append(key)
         return self.cache_data[key]
-
-    def print_cache(self):
-        """
-        Print the current cache state.
-        """
-        print("Current cache:")
-        for key, value in self.cache_data.items():
-            print("{}: {}".format(key, value))
