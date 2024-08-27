@@ -8,6 +8,7 @@ from flask_babel import Babel
 
 app = Flask(__name__)
 
+
 class Config:
     """
     Config class to set available languages and default locale and timezone
@@ -16,9 +17,11 @@ class Config:
     BABEL_DEFAULT_LOCALE = 'en'
     BABEL_DEFAULT_TIMEZONE = 'UTC'
 
+
 app.config.from_object(Config)
 
 babel = Babel(app)
+
 
 @babel.localeselector
 def get_locale():
@@ -27,12 +30,14 @@ def get_locale():
     """
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
+
 @app.route('/')
 def index():
     """
     The root route renders the index.html template.
     """
     return render_template('2-index.html')
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
